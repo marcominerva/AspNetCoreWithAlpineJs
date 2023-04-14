@@ -1,0 +1,35 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<div x-data="app" @@key.window="message = $event.detail">
+    <button class="btn btn-primary" @@click="toggle">Toggle</button>
+    <div x-cloak x-show="open" x-transition:enter.duration.500ms
+         x-transition:leave.duration.400ms>
+        <p>Contenuto nascosto...</p>
+        <p x-text="open"></p>
+        <input type="text" class="form-input" x-model="message" x-data />
+        <div x-text="message.length"></div>
+        <button class="btn btn-primary" x-bind:disabled="message.trim().length == 0">Submit</button>
+    </div>
+
+    <template x-if="open">
+        <div>
+            <p>Contenuto aggiunto dinamicamente</p>
+        </div>
+    </template>
+</div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener("alpine:init", () => { init(); });
+    </script>
+}
