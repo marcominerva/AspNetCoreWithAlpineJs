@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
+    <PackageReference Include="MinimalHelpers.OpenApi" Version="1.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="TinyHelpers" Version="2.0.30" />
     <PackageReference Include="TinyHelpers.AspNetCore" Version="2.0.20" />

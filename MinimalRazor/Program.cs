@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http.HttpResults;
+using MinimalHelpers.OpenApi;
+using MinimalRazor.Endpoints;
 using MinimalRazor.Extensions;
 using MinimalRazor.Swagger;
 using MinimaRazor.BusinessLayer.Settings;
@@ -15,7 +16,11 @@ builder.Services.AddRazorPages();
 if (swagger.IsEnabled)
 {
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.AddMissingSchemas();
+    });
 }
 
 builder.Services.AddProblemDetails();
@@ -92,16 +97,19 @@ app.UseWhen(context => context.IsApiRequest(), builder =>
     //builder.UseRateLimiter();
 });
 
-app.MapGet("/api/people/{id:int}", Results<Ok, NotFound> (int id) =>
-{
-    if (id == 0)
-    {
-        return TypedResults.NotFound();
-    }
-
-    return TypedResults.Ok();
-});
+app.MapEndpoints<GreetingsEndpoint>();
 
 app.MapRazorPages();
 
 app.Run();
+
+public interface IEndpointRouteHandler
+{
+    static abstract void MapEndpoints(IEndpointRouteBuilder endpoints);
+}
+
+public static class IEndpointRouteBuilderExtensions
+{
+    public static void MapEndpoints<T>(this IEndpointRouteBuilder endpoints)
+        where T : IEndpointRouteHandler => T.MapEndpoints(endpoints);
+}
