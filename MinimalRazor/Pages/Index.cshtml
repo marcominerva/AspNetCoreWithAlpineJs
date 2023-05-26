@@ -5,6 +5,23 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <div x-data="app">
+        <form x-on:submit.prevent>
+            <input x-model="name" type="text" class="form-control" placeholder="Write your name..." />
+            <button type="submit" class="btn btn-primary mt-1" x-on:click="sendName()" x-bind:disabled="name.trim().length == 0 || isBusy">
+                <span x-cloak x-show="isBusy" class="spinner-border spinner-border-sm" role="status"></span>
+                <i class="bi bi-send" x-show="!isBusy"></i> Send greetings
+            </button>
+
+            <span class="mt-3" x-text="message"></span>
+        </form>
+    </div>
+
 </div>
+
+@section Scripts
+    {
+    <script>
+        document.addEventListener("alpine:init", app)
+    </script>
+}

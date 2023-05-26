@@ -8,11 +8,13 @@ public class GreetingsEndpoint : IEndpointRouteHandler
     {
         var greetingsApiGroup = endpoints.MapGroup("/api/greetings");
 
-        greetingsApiGroup.MapPost(string.Empty, MakeGreetings);
+        greetingsApiGroup.MapPost(string.Empty, MakeGreetingsAsync);
     }
 
-    public static Ok<Greetings> MakeGreetings(Person person, ILogger<GreetingsEndpoint> logger)
+    public static async Task<Ok<Greetings>> MakeGreetingsAsync(Person person, ILogger<GreetingsEndpoint> logger)
     {
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
         var message = $"Hello, {person.Name}!";
         var greetings = new Greetings(message);
 

@@ -7,8 +7,16 @@
             "destination": "wwwroot/lib/bootstrap"
         },
         {
-            "library": "jquery@3.6.4",
+            "library": "bootstrap-icons@1.10.5",
+            "destination": "wwwroot/lib/bootstrap-icons"
+        },
+        {
+            "library": "jquery@3.7.0",
             "destination": "wwwroot/lib/jquery"
+        },
+        {
+            "library": "alpinejs@3.12.1",
+            "destination": "wwwroot/lib/alpinejs"
         }
     ]
 }

@@ -1,4 +1,36 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿function app() {
+    Alpine.data("app", () => ({
+        name: '',
+        message: '',
+        isBusy: false,
 
-// Write your JavaScript code.
+        sendName: async function() {
+
+            this.isBusy = true;
+
+            try {
+                const response = await send(this.name);
+                const content = await response.json();
+                this.message = content.message;
+            } catch (error) {
+            }
+            finally
+            {
+                this.isBusy = false;
+            }
+        }
+    }));
+}
+
+async function send(name) {
+    const request = { name: name };
+    const response = await fetch('/api/greetings', {
+        method: "POST",
+        headers: {
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify(request)
+    });
+
+    return response;
+}

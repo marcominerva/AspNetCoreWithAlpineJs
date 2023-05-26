@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 var swagger = builder.Services.ConfigureAndGet<SwaggerSettings>(builder.Configuration, nameof(SwaggerSettings));
 
 builder.Services.AddRazorPages();
+builder.Services.AddWebOptimizer(minifyCss: true, minifyJavaScript: builder.Environment.IsProduction());
 
 if (swagger.IsEnabled)
 {
@@ -78,6 +79,7 @@ app.UseWhen(context => context.IsApiRequest(), builder =>
     builder.UseStatusCodePages();
 });
 
+app.UseWebOptimizer();
 app.UseStaticFiles();
 
 if (swagger.IsEnabled)
