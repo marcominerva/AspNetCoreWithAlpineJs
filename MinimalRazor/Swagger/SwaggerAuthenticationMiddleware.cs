@@ -3,21 +3,14 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using MinimaRazor.BusinessLayer.Settings;
+using MinimalRazor.BusinessLayer.Settings;
 using TinyHelpers.Extensions;
 
 namespace MinimalRazor.Swagger;
 
-public class SwaggerAuthenticationMiddleware
+public class SwaggerAuthenticationMiddleware(RequestDelegate next, IOptions<SwaggerSettings> swaggerSettingsOptions)
 {
-    private readonly RequestDelegate next;
-    private readonly SwaggerSettings settings;
-
-    public SwaggerAuthenticationMiddleware(RequestDelegate next, IOptions<SwaggerSettings> swaggerSettingsOptions)
-    {
-        this.next = next;
-        settings = swaggerSettingsOptions.Value;
-    }
+    private readonly SwaggerSettings settings = swaggerSettingsOptions.Value;
 
     public async Task InvokeAsync(HttpContext context)
     {

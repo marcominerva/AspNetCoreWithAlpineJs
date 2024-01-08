@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Diagnostics;
-using MinimalHelpers.OpenApi;
+using System.Diagnostics;
+using Microsoft.AspNetCore.WebUtilities;
+using MinimalRazor.BusinessLayer.Settings;
 using MinimalRazor.Endpoints;
+using MinimalRazor.ExceptionHandlers;
 using MinimalRazor.Extensions;
 using MinimalRazor.Swagger;
-using MinimaRazor.BusinessLayer.Settings;
 using TinyHelpers.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,14 +18,21 @@ builder.Services.AddWebOptimizer(minifyCss: true, minifyJavaScript: builder.Envi
 if (swagger.IsEnabled)
 {
     builder.Services.AddEndpointsApiExplorer();
-
-    builder.Services.AddSwaggerGen(options =>
-    {
-        options.AddMissingSchemas();
-    });
+    builder.Services.AddSwaggerGen();
 }
 
-builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<DefaultExceptionHandler>();
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = context =>
+    {
+        var statusCode = context.ProblemDetails.Status.GetValueOrDefault(StatusCodes.Status500InternalServerError);
+        context.ProblemDetails.Type ??= $"https://httpstatuses.io/{statusCode}";
+        context.ProblemDetails.Title ??= ReasonPhrases.GetReasonPhrase(statusCode);
+        context.ProblemDetails.Instance ??= context.HttpContext.Request.Path;
+        context.ProblemDetails.Extensions["traceId"] = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier;
+    };
+});
 
 var app = builder.Build();
 
@@ -46,36 +54,7 @@ app.UseWhen(context => context.IsWebRequest(), builder =>
 
 app.UseWhen(context => context.IsApiRequest(), builder =>
 {
-    if (!app.Environment.IsDevelopment())
-    {
-        // Error handling
-        builder.UseExceptionHandler(new ExceptionHandlerOptions
-        {
-            AllowStatusCode404Response = true,
-            ExceptionHandler = async (HttpContext context) =>
-            {
-                var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-                var error = exceptionHandlerFeature?.Error;
-
-                if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
-                {
-                    // Write as JSON problem details
-                    await problemDetailsService.WriteAsync(new()
-                    {
-                        HttpContext = context,
-                        AdditionalMetadata = exceptionHandlerFeature?.Endpoint?.Metadata,
-                        ProblemDetails =
-                        {
-                            Status = context.Response.StatusCode,
-                            Title = error?.GetType().FullName ?? "An error occurred while processing your request",
-                            Detail = error?.Message
-                        }
-                    });
-                }
-            }
-        });
-    }
-
+    builder.UseExceptionHandler();
     builder.UseStatusCodePages();
 });
 
@@ -105,7 +84,7 @@ app.MapRazorPages();
 
 app.Run();
 
-public interface IEndpointRouteHandler
+public interface IEndpointRouteHandlerBuilder
 {
     static abstract void MapEndpoints(IEndpointRouteBuilder endpoints);
 }
@@ -113,5 +92,5 @@ public interface IEndpointRouteHandler
 public static class IEndpointRouteBuilderExtensions
 {
     public static void MapEndpoints<T>(this IEndpointRouteBuilder endpoints)
-        where T : IEndpointRouteHandler => T.MapEndpoints(endpoints);
+        where T : IEndpointRouteHandlerBuilder => T.MapEndpoints(endpoints);
 }

@@ -1,4 +1,4 @@
-﻿namespace MinimaRazor.BusinessLayer.Settings;
+﻿namespace MinimalRazor.BusinessLayer.Settings;
 
 public class SwaggerSettings
 {

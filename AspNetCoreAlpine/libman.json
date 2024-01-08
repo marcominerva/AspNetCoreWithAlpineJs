@@ -3,7 +3,7 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "alpinejs@3.12.0",
+      "library": "alpinejs@3.13.3",
       "destination": "wwwroot/lib/alpinejs"
     }
   ]

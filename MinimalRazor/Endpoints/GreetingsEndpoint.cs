@@ -2,7 +2,7 @@
 
 namespace MinimalRazor.Endpoints;
 
-public class GreetingsEndpoint : IEndpointRouteHandler
+public class GreetingsEndpoint : IEndpointRouteHandlerBuilder
 {
     public static void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
